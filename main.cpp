@@ -1,8 +1,9 @@
-#include <windows.h>
-#include "constants.h"
+#include <windows.h> // sisteminiai
+#include "constants.h" // projekto
 
-
-/*coment comments more comments*/
+//----------------
+/* pagrindinis _while'as_*/
+//-----------------
 long __stdcall WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     switch (message)                  /* handle the messages */
@@ -13,7 +14,7 @@ long __stdcall WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM l
             char szFileName[MAX_PATH];
             HINSTANCE hInstance = GetModuleHandle(NULL);
             GetModuleFileName(hInstance, szFileName, MAX_PATH);
-            MessageBox(hwnd, szFileName, "This program is:", MB_YESNO/* | MB_ICONINFORMATION*/);
+            MessageBox(hwnd, szFileName, "This program is:", MB_YESNO | MB_ICONINFORMATION );
         }
         break;
         case WM_DESTROY:
@@ -56,12 +57,21 @@ long __stdcall WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM l
  return 0;
 }
 
+//--------------------------
+// pagrindinio lango inicilizacija
+//--------------------------
 int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE hPrev, LPSTR lpszArgument, int nCmdShow)
 {
  char szClassName[ ] = "CodeBlocksWindowsApp";
  MSG messages;
  WNDCLASS wc;
  HWND hwnd;
+
+ //--------
+ // acceleratoriai
+
+
+ HACCEL hAccel = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDR_ACCEL1));
 
  wc.hInstance     = hInstance,                         wc.lpszClassName  = szClassName;
  wc.lpfnWndProc   = WindowProcedure,                   wc.style          = 0;
@@ -71,10 +81,14 @@ int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE hPrev, LPSTR lpszArgument, 
  RegisterClass(&wc);
  hwnd=CreateWindow(szClassName,"Template",WS_OVERLAPPEDWINDOW,50,50,544,375,HWND_DESKTOP,NULL,hInstance,NULL);
  ShowWindow (hwnd, nCmdShow);
+
  while(GetMessage (&messages, NULL, 0, 0)>0)
  {
-    TranslateMessage(&messages);
-    DispatchMessage(&messages);
+    if (!TranslateAccelerator(hwnd, hAccel, &messages))
+        {
+            TranslateMessage(&messages);
+            DispatchMessage(&messages);
+        }
  }
 
  return messages.wParam;

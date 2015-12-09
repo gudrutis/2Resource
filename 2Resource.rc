@@ -6,10 +6,21 @@ BEGIN
     POPUP "&File"
     BEGIN
         MENUITEM "&Open...",      IDM_FILE_OPEN
-        MENUITEM "&Exit",         IDM_FILE_EXIT
+        MENUITEM "&Exit\tCtrl+q",       IDM_FILE_EXIT
         MENUITEM "&The box",      IDD_ABOUT
     END
 END
+
+//------------
+// aceleratorius
+
+IDR_ACCEL1 ACCELERATORS
+BEGIN
+    "^q", IDM_FILE_EXIT // CTRL+F12
+
+END
+//------------
+
 
 
 IDD_ABOUT DIALOG DISCARDABLE  0, 0, 239, 66
