@@ -2,11 +2,16 @@
 #include "constants.h" // projekto
 
 
+////----
+//Glogal variables
+HWND g_hToolbar = NULL; // toolbar
+int x = 0;
+int y = 0;
 
-////-------
-//// DIALOGA apdorojantis switchas
-//
 
+
+////---------
+// DIALOGA ABOUT apdorojantis switchas
 BOOL CALLBACK AboutDlgProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam)
 {
 	switch(Message)
@@ -23,6 +28,100 @@ BOOL CALLBACK AboutDlgProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam
 				case IDCANCEL:
 					EndDialog(hwnd, IDCANCEL);
 				break;
+
+
+			}
+		break;
+		default:
+			return FALSE;
+	}
+	return TRUE;
+}
+
+////------------------
+//toolbar message switch
+BOOL CALLBACK ToolDlgProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam)
+{
+	switch(Message)
+	{
+        case WM_INITDIALOG:
+			// This is where we set up the dialog box, and initialise any default values
+
+			SetDlgItemInt(hwnd, IDC_EDIT_X, x, FALSE);
+			SetDlgItemInt(hwnd, IDC_EDIT_Y, y, FALSE);
+		break;
+		case WM_COMMAND:
+			switch(LOWORD(wParam))
+			{
+				case IDC_PRESS:
+					MessageBox(hwnd, "Hi!", "This is a message",
+						MB_OK | MB_ICONEXCLAMATION);
+				break;
+				case IDC_OTHER:
+
+					MessageBox(hwnd, "Bye!", "wuuups", MB_OK | MB_ICONEXCLAMATION);
+				break;
+
+				// buttons
+                case IDC_B_R 	:
+                    {
+                        x += 1;
+                        SendDlgItemMessage(hwnd, IDC_UPDATE, LB_SETITEMDATA, (WPARAM)IDC_UPDATE,(LPARAM)LB_SETITEMDATA);
+                    }
+                break;
+                case IDC_B_L	:
+                    {
+                    x -= 1;
+                    }
+                break;
+                case IDC_B_TL	:
+                    {
+                        x -= 1;
+                        y += 1;
+                    }
+                break;
+                case IDC_B_T	:
+                    {
+                        y += 1;
+                    }
+                break;
+                case IDC_B_TR	:
+                    {
+                        x -= 1;
+                        y += 1;
+                    }
+                break;
+                case IDC_B_B	:
+                    {
+                        y -= 1;
+                    }
+                break;
+                case IDC_B_BL	:
+                    {
+                        x -= 1;
+                        y -= 1;
+                    }
+                break;
+                case IDC_B_BR	:
+                    {
+                        SendDlgItemMessage(hwnd, IDC_UPDATE, LB_SETITEMDATA, 0,0);
+
+                        x += 1;
+                        y -= 1;
+                    }
+                break;
+                case IDC_UPDATE:
+                    {
+
+                    switch(HIWORD(wParam))
+                        {
+                            case LBN_SELCHANGE:
+                                    MessageBox(hwnd, "Bye!", "Tsssssa message",
+                                    MB_OK | MB_ICONEXCLAMATION);
+                            break;
+                        }
+                    }
+                break;
 			}
 		break;
 		default:
@@ -34,10 +133,8 @@ BOOL CALLBACK AboutDlgProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam
 
 
 
-
-
 //----------------
-/* pagrindinis _while'as_*/
+/* pagrindinis switch'as_*/
 //-----------------
 long __stdcall WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
@@ -51,15 +148,66 @@ long __stdcall WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM l
             GetModuleFileName(hInstance, szFileName, MAX_PATH);
             MessageBox(hwnd, szFileName, "This program is:", MB_YESNO | MB_ICONINFORMATION );
         }
+
+        // programos pabaiga
         break;
         case WM_DESTROY:
+            DestroyWindow(g_hToolbar); // destroy toolbar
             PostQuitMessage (0);       /* send a WM_QUIT to the message queue */
+        break;
+
+        //--------
+        // Min/MAX size of window
+        // !!error!! pjaunasi su toolbaru
+        /* case WM_GETMINMAXINFO:
+            {
+                LPMINMAXINFO lpMMI = (LPMINMAXINFO)lParam;
+                lpMMI->ptMinTrackSize.x = 300; // min x
+                lpMMI->ptMinTrackSize.y = 300;
+                lpMMI->ptMaxTrackSize.x = 300; // max x
+                lpMMI->ptMaxTrackSize.y = 300;
+            }
+        */
+        //------------
+        // on window creation
+
+        case WM_CREATE:
+			g_hToolbar = CreateDialog(GetModuleHandle(NULL), MAKEINTRESOURCE(IDD_TOOLBAR),
+				hwnd, ToolDlgProc);
+			if(g_hToolbar != NULL)
+			{
+				ShowWindow(g_hToolbar, SW_SHOW);
+			}
+			else
+			{
+				MessageBox(hwnd, "CreateDialog returned NULL", "Warning!",
+					MB_OK | MB_ICONINFORMATION);
+			}
             break;
-            /*? atskiras casas maniu punktui??? ?*/
+
+        /*
+		case WM_INITDIALOG:
+			// This is where we set up the dialog box, and initialise any default values
+
+			SetDlgItemInt(hwnd, IDC_EDIT_X, 5, FALSE);
+			SetDlgItemInt(hwnd, IDC_EDIT_Y, 15, FALSE);
+		break;
+        */
+
+        ////------------
+        // PAGRINDIS - apdorojami messagai kaip mygtuku paspaudimai
         case WM_COMMAND:
             {
             switch(LOWORD(wParam))
                 {
+                // show/hide toolbar
+				case ID_DIALOG_SHOW:
+					ShowWindow(g_hToolbar, SW_SHOW);
+				break;
+				case ID_DIALOG_HIDE:
+					ShowWindow(g_hToolbar, SW_HIDE);
+				break;
+                //--------------
 
                 case IDM_FILE_EXIT:
                     {
@@ -96,14 +244,8 @@ long __stdcall WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM l
 					}
 				}
 				break;
-                /*
-                case IDOK:
-					EndDialog(hwnd, IDOK);
-				break;
-				case IDCANCEL:
-					EndDialog(hwnd, IDCANCEL);
-				break;
-				*/
+                // END dialogas
+
                 }
             }
         default:         /* for messages that we don't deal with */
@@ -139,7 +281,7 @@ int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE hPrev, LPSTR lpszArgument, 
 
  while(GetMessage (&messages, NULL, 0, 0)>0)
  {
-    if (!TranslateAccelerator(hwnd, hAccel, &messages))
+    if (!TranslateAccelerator(hwnd, hAccel, &messages) && !IsDialogMessage(g_hToolbar, &messages) )
         {
             TranslateMessage(&messages);
             DispatchMessage(&messages);
