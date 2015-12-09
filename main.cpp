@@ -1,6 +1,41 @@
 #include <windows.h> // sisteminiai
 #include "constants.h" // projekto
 
+
+
+////-------
+//// DIALOGA apdorojantis switchas
+//
+
+BOOL CALLBACK AboutDlgProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam)
+{
+	switch(Message)
+	{
+		case WM_INITDIALOG:
+
+		return TRUE;
+		case WM_COMMAND:
+			switch(LOWORD(wParam))
+			{
+				case IDOK:
+					EndDialog(hwnd, IDOK);
+				break;
+				case IDCANCEL:
+					EndDialog(hwnd, IDCANCEL);
+				break;
+			}
+		break;
+		default:
+			return FALSE;
+	}
+	return TRUE;
+}
+
+
+
+
+
+
 //----------------
 /* pagrindinis _while'as_*/
 //-----------------
@@ -41,6 +76,26 @@ long __stdcall WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM l
                         MB_ICONINFORMATION);
                     }
                 break;
+
+                /* dialogas ABOUT */
+				case ID_HELP_ABOUT:
+				{
+					int ret = DialogBox(GetModuleHandle(NULL),
+						MAKEINTRESOURCE(IDD_ABOUT), hwnd, AboutDlgProc);
+					if(ret == IDOK){
+						MessageBox(hwnd, "Dialog exited with IDOK.", "Notice",
+							MB_OK | MB_ICONINFORMATION);
+					}
+					else if(ret == IDCANCEL){
+						MessageBox(hwnd, "Dialog exited with IDCANCEL.", "Notice",
+							MB_OK | MB_ICONINFORMATION);
+					}
+					else if(ret == -1){
+						MessageBox(hwnd, "Dialog failed!", "Error",
+							MB_OK | MB_ICONINFORMATION);
+					}
+				}
+				break;
                 /*
                 case IDOK:
 					EndDialog(hwnd, IDOK);
@@ -51,7 +106,7 @@ long __stdcall WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM l
 				*/
                 }
             }
-        default:                      /* for messages that we don't deal with */
+        default:         /* for messages that we don't deal with */
             return DefWindowProc (hwnd, message, wParam, lParam);
     }
  return 0;
@@ -62,7 +117,7 @@ long __stdcall WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM l
 //--------------------------
 int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE hPrev, LPSTR lpszArgument, int nCmdShow)
 {
- char szClassName[ ] = "CodeBlocksWindowsApp";
+ char szClassName[ ] = "Zygio super aplikacija";
  MSG messages;
  WNDCLASS wc;
  HWND hwnd;
@@ -79,7 +134,7 @@ int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE hPrev, LPSTR lpszArgument, 
  wc.lpszMenuName  = MAKEINTRESOURCE(IDR_MAIN_MENU),    wc.cbClsExtra     = 0;
  wc.cbWndExtra    = 0,                                 wc.hbrBackground  = (HBRUSH)COLOR_BACKGROUND;
  RegisterClass(&wc);
- hwnd=CreateWindow(szClassName,"Template",WS_OVERLAPPEDWINDOW,50,50,544,375,HWND_DESKTOP,NULL,hInstance,NULL);
+ hwnd=CreateWindow(szClassName,"Zygio super aplikacija",WS_OVERLAPPEDWINDOW,50,50,544,375,HWND_DESKTOP,NULL,hInstance,NULL);
  ShowWindow (hwnd, nCmdShow);
 
  while(GetMessage (&messages, NULL, 0, 0)>0)
@@ -91,7 +146,7 @@ int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE hPrev, LPSTR lpszArgument, 
         }
  }
 
- return messages.wParam;
+ return messages.wParam; // zinute kuria apdorosime auksciau esancioje funkcijoje
 }
 
 
