@@ -43,31 +43,18 @@ BOOL LoadTextFileToEdit(LPCTSTR pszFileName)
 	hFile = CreateFile(pszFileName, GENERIC_READ, FILE_SHARE_READ, NULL,
 		OPEN_EXISTING, 0, NULL);
 	if(hFile != INVALID_HANDLE_VALUE)
-	{
-		DWORD dwFileSize;
-
-		dwFileSize = GetFileSize(hFile, NULL);
-		if(dwFileSize != 0xFFFFFFFF)
+    	{
+		if(&g_ballInfo != NULL)
 		{
-			LPSTR pszFileText;
-
-			pszFileText = (LPSTR)GlobalAlloc(GPTR, dwFileSize + 1);
-			if(pszFileText != NULL)
-			{
-				DWORD dwRead;
-
-				if(ReadFile(hFile, pszFileText, dwFileSize, &dwRead, NULL))
-				{
-					pszFileText[dwFileSize] = 0; // Add null terminator
-					//if(SetWindowText(hEdit, pszFileText))
-						bSuccess = TRUE; // It worked!
-				}
-				GlobalFree(pszFileText);
-			}
+			LPSTR pszText;
+			DWORD dwBufferSize = sizeof(BALLINFO) + 1;
+					DWORD dwWritten;
+					if(ReadFile(hFile,&g_ballInfo, sizeof(BALLINFO), &dwWritten, NULL))
+						bSuccess = TRUE;
 		}
 		CloseHandle(hFile);
-	}
-	return bSuccess;
+        }
+    return bSuccess;
 }
 
 BOOL SaveTextFileFromEdit( LPCTSTR pszFileName)
@@ -76,30 +63,16 @@ BOOL SaveTextFileFromEdit( LPCTSTR pszFileName)
 	BOOL bSuccess = FALSE;
 
 	hFile = CreateFile(pszFileName, GENERIC_WRITE, 0, NULL,
-		CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+    CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
 	if(hFile != INVALID_HANDLE_VALUE)
 	{
-		DWORD dwTextLength;
-
-		dwTextLength = GetWindowTextLength(hEdit);
-		// No need to bother if there's no text.
-		if(dwTextLength > 0)
+		if(&g_ballInfo != NULL)
 		{
 			LPSTR pszText;
-			DWORD dwBufferSize = dwTextLength + 1;
-
-			pszText = (LPSTR)GlobalAlloc(GPTR, dwBufferSize);
-			if(pszText != NULL)
-			{
-				if(GetWindowText(hEdit, pszText, dwBufferSize))
-				{
+			DWORD dwBufferSize = sizeof(BALLINFO) + 1;
 					DWORD dwWritten;
-
-					if(WriteFile(hFile, pszText, dwTextLength, &dwWritten, NULL))
+					if(WriteFile(hFile, (LPCVOID)&g_ballInfo, sizeof(BALLINFO), &dwWritten, NULL))
 						bSuccess = TRUE;
-				}
-				GlobalFree(pszText);
-			}
 		}
 		CloseHandle(hFile);
 	}
