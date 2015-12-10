@@ -48,6 +48,10 @@
 #define ID_FILE_OPEN    2121
 #define ID_FILE_SAVEAS  2122
 
+
+/*animacija*/
+#define IDB_BALL        2201
+
 #endif // CONSTANTS_H_INCLUDED
 
 
