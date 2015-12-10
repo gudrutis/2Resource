@@ -5,7 +5,9 @@ IDR_MAIN_MENU MENU DISCARDABLE
 BEGIN
     POPUP "&File"
         BEGIN
-            MENUITEM "&Open...",      IDC_B_BR //IDM_FILE_OPEN
+            MENUITEM "&Open...",                    ID_FILE_OPEN
+            MENUITEM "Save &As...",                 ID_FILE_SAVEAS
+            MENUITEM "&Test_mesager...",       IDM_FILE_OPEN //IDC_B_BR
             MENUITEM "&Exit\tCtrl+q",       IDM_FILE_EXIT
 
         END

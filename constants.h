@@ -1,5 +1,5 @@
 #include <windows.h>
-#include <tchar.h>
+
 
 #ifndef CONSTANTS_H_INCLUDED // jeigu tokios konstantos nera, sukurk
 #define CONSTANTS_H_INCLUDED
@@ -11,7 +11,6 @@
 
 /* dialogams */
 #define IDC_STATIC -1
-#define IDR_MYMENU                      103
 #define IDD_ABOUT                       102
 #define ID_FILE_EXIT                    40001
 #define ID_HELP_ABOUT                   40002
@@ -20,7 +19,7 @@
 #define IDR_ACCEL1                      101
 
 /*toolbar */
-#define IDR_MYMENU                      1011
+#define IDR_MYMENU                      1010
 #define IDD_TOOLBAR                     1011
 #define IDC_PRESS                       10001
 #define IDC_OTHER                       10011
@@ -43,7 +42,11 @@
 
 /*custom constants */
 #define IDC_UPDATE      2110
-#define LB_SETITEMDATA  2111
+#define IDC_EVENTAS     2111
+
+/*file i/o */
+#define ID_FILE_OPEN    2121
+#define ID_FILE_SAVEAS  2122
 
 #endif // CONSTANTS_H_INCLUDED
 

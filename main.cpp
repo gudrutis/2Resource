@@ -1,4 +1,5 @@
 #include <windows.h> // sisteminiai
+#include <tchar.h>
 #include "constants.h" // projekto
 
 
@@ -8,7 +9,123 @@ HWND g_hToolbar = NULL; // toolbar
 int x = 0;
 int y = 0;
 
+////--
+//functions
 
+BOOL LoadTextFileToEdit(HWND hEdit, LPCTSTR pszFileName)
+{
+	HANDLE hFile;
+	BOOL bSuccess = FALSE;
+
+	hFile = CreateFile(pszFileName, GENERIC_READ, FILE_SHARE_READ, NULL,
+		OPEN_EXISTING, 0, NULL);
+	if(hFile != INVALID_HANDLE_VALUE)
+	{
+		DWORD dwFileSize;
+
+		dwFileSize = GetFileSize(hFile, NULL);
+		if(dwFileSize != 0xFFFFFFFF)
+		{
+			LPSTR pszFileText;
+
+			pszFileText = (LPSTR)GlobalAlloc(GPTR, dwFileSize + 1);
+			if(pszFileText != NULL)
+			{
+				DWORD dwRead;
+
+				if(ReadFile(hFile, pszFileText, dwFileSize, &dwRead, NULL))
+				{
+					pszFileText[dwFileSize] = 0; // Add null terminator
+					if(SetWindowText(hEdit, pszFileText))
+						bSuccess = TRUE; // It worked!
+				}
+				GlobalFree(pszFileText);
+			}
+		}
+		CloseHandle(hFile);
+	}
+	return bSuccess;
+}
+
+BOOL SaveTextFileFromEdit(HWND hEdit, LPCTSTR pszFileName)
+{
+	HANDLE hFile;
+	BOOL bSuccess = FALSE;
+
+	hFile = CreateFile(pszFileName, GENERIC_WRITE, 0, NULL,
+		CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+	if(hFile != INVALID_HANDLE_VALUE)
+	{
+		DWORD dwTextLength;
+
+		dwTextLength = GetWindowTextLength(hEdit);
+		// No need to bother if there's no text.
+		if(dwTextLength > 0)
+		{
+			LPSTR pszText;
+			DWORD dwBufferSize = dwTextLength + 1;
+
+			pszText = (LPSTR)GlobalAlloc(GPTR, dwBufferSize);
+			if(pszText != NULL)
+			{
+				if(GetWindowText(hEdit, pszText, dwBufferSize))
+				{
+					DWORD dwWritten;
+
+					if(WriteFile(hFile, pszText, dwTextLength, &dwWritten, NULL))
+						bSuccess = TRUE;
+				}
+				GlobalFree(pszText);
+			}
+		}
+		CloseHandle(hFile);
+	}
+	return bSuccess;
+}
+
+void DoFileOpen(HWND hwnd)
+{
+	OPENFILENAME ofn;
+	char szFileName[MAX_PATH] = "";
+
+	ZeroMemory(&ofn, sizeof(ofn));
+
+	ofn.lStructSize = sizeof(OPENFILENAME);
+	ofn.hwndOwner = hwnd;
+	ofn.lpstrFilter = "Text Files (*.txt)\0*.txt\0All Files (*.*)\0*.*\0";
+	ofn.lpstrFile = szFileName;
+	ofn.nMaxFile = MAX_PATH;
+	ofn.Flags = OFN_EXPLORER | OFN_FILEMUSTEXIST | OFN_HIDEREADONLY;
+	ofn.lpstrDefExt = "txt";
+
+	if(GetOpenFileName(&ofn))
+	{
+		//HWND hEdit = GetDlgItem(hwnd, IDC_MAIN_EDIT);
+		//LoadTextFileToEdit(hEdit, szFileName);
+	}
+}
+
+void DoFileSave(HWND hwnd)
+{
+	OPENFILENAME ofn;
+	char szFileName[MAX_PATH] = "";
+
+	ZeroMemory(&ofn, sizeof(ofn));
+
+	ofn.lStructSize = sizeof(OPENFILENAME);
+	ofn.hwndOwner = hwnd;
+	ofn.lpstrFilter = "Text Files (*.txt)\0*.txt\0All Files (*.*)\0*.*\0";
+	ofn.lpstrFile = szFileName;
+	ofn.nMaxFile = MAX_PATH;
+	ofn.lpstrDefExt = "txt";
+	ofn.Flags = OFN_EXPLORER | OFN_PATHMUSTEXIST | OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT;
+
+	if(GetSaveFileName(&ofn))
+	{
+		//HWND hEdit = GetDlgItem(hwnd, IDC_MAIN_EDIT);
+		//SaveTextFileFromEdit(hEdit, szFileName);
+	}
+}
 
 ////---------
 // DIALOGA ABOUT apdorojantis switchas
@@ -51,8 +168,10 @@ BOOL CALLBACK ToolDlgProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam)
 			SetDlgItemInt(hwnd, IDC_EDIT_Y, y, FALSE);
 		break;
 		case WM_COMMAND:
+
 			switch(LOWORD(wParam))
 			{
+
 				case IDC_PRESS:
 					MessageBox(hwnd, "Hi!", "This is a message",
 						MB_OK | MB_ICONEXCLAMATION);
@@ -62,71 +181,99 @@ BOOL CALLBACK ToolDlgProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam)
 					MessageBox(hwnd, "Bye!", "wuuups", MB_OK | MB_ICONEXCLAMATION);
 				break;
 
+                ////////////////////////
 				// buttons
+				//////////////////
                 case IDC_B_R 	:
                     {
                         x += 1;
-                        SendDlgItemMessage(hwnd, IDC_UPDATE, LB_SETITEMDATA, (WPARAM)IDC_UPDATE,(LPARAM)LB_SETITEMDATA);
+                        SetDlgItemInt(hwnd, IDC_EDIT_X, x, FALSE);
+                        SetDlgItemInt(hwnd, IDC_EDIT_Y, y, FALSE);
+                        // siunciu pagal gluobalu, BET NIEKAS NEVEIKIA
+                        SendMessage (g_hToolbar ,  IDC_EVENTAS, (WPARAM)0,(LPARAM)0);
+                    }
+                break;
+                // KODEL NEVEIKIA !??!?!!??!?!!
+                case IDC_EVENTAS:
+                    {
+                       MessageBox(hwnd, "issikvieciau eventa,jeeeeeee", "wuuups", MB_OK | MB_ICONEXCLAMATION);
                     }
                 break;
                 case IDC_B_L	:
                     {
                     x -= 1;
+                    SetDlgItemInt(hwnd, IDC_EDIT_X, x, FALSE);
+                    SetDlgItemInt(hwnd, IDC_EDIT_Y, y, FALSE);
                     }
                 break;
                 case IDC_B_TL	:
                     {
                         x -= 1;
                         y += 1;
+                        SetDlgItemInt(hwnd, IDC_EDIT_X, x, FALSE);
+                        SetDlgItemInt(hwnd, IDC_EDIT_Y, y, FALSE);
                     }
                 break;
                 case IDC_B_T	:
                     {
                         y += 1;
+                        SetDlgItemInt(hwnd, IDC_EDIT_X, x, FALSE);
+                        SetDlgItemInt(hwnd, IDC_EDIT_Y, y, FALSE);
                     }
                 break;
                 case IDC_B_TR	:
                     {
-                        x -= 1;
+                        x += 1;
                         y += 1;
+                        SetDlgItemInt(hwnd, IDC_EDIT_X, x, FALSE);
+                        SetDlgItemInt(hwnd, IDC_EDIT_Y, y, FALSE);
                     }
                 break;
                 case IDC_B_B	:
                     {
                         y -= 1;
+                    SetDlgItemInt(hwnd, IDC_EDIT_X, x, FALSE);
+                    SetDlgItemInt(hwnd, IDC_EDIT_Y, y, FALSE);
                     }
                 break;
                 case IDC_B_BL	:
                     {
                         x -= 1;
                         y -= 1;
+                    SetDlgItemInt(hwnd, IDC_EDIT_X, x, FALSE);
+                    SetDlgItemInt(hwnd, IDC_EDIT_Y, y, FALSE);
                     }
                 break;
                 case IDC_B_BR	:
                     {
-                        SendDlgItemMessage(hwnd, IDC_UPDATE, LB_SETITEMDATA, 0,0);
-
                         x += 1;
                         y -= 1;
+                        SetDlgItemInt(hwnd, IDC_EDIT_X, x, FALSE);
+                        SetDlgItemInt(hwnd, IDC_EDIT_Y, y, FALSE);
                     }
+                //--------------------------
                 break;
                 case IDC_UPDATE:
                     {
 
                     switch(HIWORD(wParam))
                         {
-                            case LBN_SELCHANGE:
+                            case IDC_EVENTAS:
                                     MessageBox(hwnd, "Bye!", "Tsssssa message",
                                     MB_OK | MB_ICONEXCLAMATION);
                             break;
                         }
                     }
                 break;
+
 			}
+
+
 		break;
 		default:
 			return FALSE;
 	}
+
 	return TRUE;
 }
 
@@ -196,6 +343,7 @@ long __stdcall WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM l
 
         ////------------
         // PAGRINDIS - apdorojami messagai kaip mygtuku paspaudimai
+        /////
         case WM_COMMAND:
             {
             switch(LOWORD(wParam))
@@ -209,6 +357,15 @@ long __stdcall WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM l
 				break;
                 //--------------
 
+                //file I/O
+                case ID_FILE_OPEN :
+					DoFileOpen(hwnd);
+				break;
+				case ID_FILE_SAVEAS :
+					DoFileSave(hwnd);
+				break;
+                //---
+
                 case IDM_FILE_EXIT:
                     {
                         PostQuitMessage (0);       /* send a WM_QUIT to the message queue */
@@ -217,11 +374,15 @@ long __stdcall WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM l
                 break;
                 case IDM_FILE_OPEN:
                     {
+                        //cia irgi kaskodel neveikia
+                    SendMessage (g_hToolbar ,  IDC_EVENTAS, (WPARAM)0,(LPARAM)0);
+                    /*
                     char szFileName[MAX_PATH];
                     HINSTANCE hInstance = GetModuleHandle(NULL);
                     GetModuleFileName(hInstance, szFileName, MAX_PATH);
                     MessageBox(hwnd, szFileName, "This program is:", MB_OK |
                         MB_ICONINFORMATION);
+                    */
                     }
                 break;
 
