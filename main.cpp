@@ -6,13 +6,36 @@
 ////----
 //Glogal variables
 HWND g_hToolbar = NULL; // toolbar
-int x = 0;
-int y = 0;
+// int x = 0;
+// int y = 0;
+
+////-----------------
+// animacijai kamuoliukas
+//
+
+const int ID_TIMER = 1;
+const int BALL_MOVE_DELTA = 2;
+
+typedef struct _BALLINFO
+{
+	int width;
+	int height;
+	int x;
+	int y;
+
+	int dx;
+	int dy;
+}BALLINFO;
+
+BALLINFO g_ballInfo = {5,5,30,30,0,0 };
+HBITMAP g_hbmBall = NULL;
+HBITMAP g_hbmMask = NULL;
+//<---- animacija
 
 ////--
 //functions
 
-BOOL LoadTextFileToEdit(HWND hEdit, LPCTSTR pszFileName)
+BOOL LoadTextFileToEdit(LPCTSTR pszFileName)
 {
 	HANDLE hFile;
 	BOOL bSuccess = FALSE;
@@ -36,7 +59,7 @@ BOOL LoadTextFileToEdit(HWND hEdit, LPCTSTR pszFileName)
 				if(ReadFile(hFile, pszFileText, dwFileSize, &dwRead, NULL))
 				{
 					pszFileText[dwFileSize] = 0; // Add null terminator
-					if(SetWindowText(hEdit, pszFileText))
+					//if(SetWindowText(hEdit, pszFileText))
 						bSuccess = TRUE; // It worked!
 				}
 				GlobalFree(pszFileText);
@@ -47,7 +70,7 @@ BOOL LoadTextFileToEdit(HWND hEdit, LPCTSTR pszFileName)
 	return bSuccess;
 }
 
-BOOL SaveTextFileFromEdit(HWND hEdit, LPCTSTR pszFileName)
+BOOL SaveTextFileFromEdit( LPCTSTR pszFileName)
 {
 	HANDLE hFile;
 	BOOL bSuccess = FALSE;
@@ -101,7 +124,7 @@ void DoFileOpen(HWND hwnd)
 	if(GetOpenFileName(&ofn))
 	{
 		//HWND hEdit = GetDlgItem(hwnd, IDC_MAIN_EDIT);
-		//LoadTextFileToEdit(hEdit, szFileName);
+		LoadTextFileToEdit( szFileName);
 	}
 }
 
@@ -123,7 +146,7 @@ void DoFileSave(HWND hwnd)
 	if(GetSaveFileName(&ofn))
 	{
 		//HWND hEdit = GetDlgItem(hwnd, IDC_MAIN_EDIT);
-		//SaveTextFileFromEdit(hEdit, szFileName);
+		SaveTextFileFromEdit(szFileName);
 	}
 }
 
@@ -164,8 +187,8 @@ BOOL CALLBACK ToolDlgProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam)
         case WM_INITDIALOG:
 			// This is where we set up the dialog box, and initialise any default values
 
-			SetDlgItemInt(hwnd, IDC_EDIT_X, x, FALSE);
-			SetDlgItemInt(hwnd, IDC_EDIT_Y, y, FALSE);
+			SetDlgItemInt(hwnd, IDC_EDIT_X, g_ballInfo.x, FALSE);
+			SetDlgItemInt(hwnd, IDC_EDIT_Y, g_ballInfo.y, FALSE);
 		break;
 		case WM_COMMAND:
 
@@ -186,9 +209,9 @@ BOOL CALLBACK ToolDlgProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam)
 				//////////////////
                 case IDC_B_R 	:
                     {
-                        x += 1;
-                        SetDlgItemInt(hwnd, IDC_EDIT_X, x, FALSE);
-                        SetDlgItemInt(hwnd, IDC_EDIT_Y, y, FALSE);
+                        g_ballInfo.x += 1;
+                        SetDlgItemInt(hwnd, IDC_EDIT_X, g_ballInfo.x, FALSE);
+                        SetDlgItemInt(hwnd, IDC_EDIT_Y, g_ballInfo.y, FALSE);
                         // siunciu pagal gluobalu, BET NIEKAS NEVEIKIA
                         SendMessage (g_hToolbar ,  IDC_EVENTAS, (WPARAM)0,(LPARAM)0);
                     }
@@ -201,55 +224,55 @@ BOOL CALLBACK ToolDlgProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam)
                 break;
                 case IDC_B_L	:
                     {
-                    x -= 1;
-                    SetDlgItemInt(hwnd, IDC_EDIT_X, x, FALSE);
-                    SetDlgItemInt(hwnd, IDC_EDIT_Y, y, FALSE);
+                    g_ballInfo.x -= 1;
+                    SetDlgItemInt(hwnd, IDC_EDIT_X, g_ballInfo.x, FALSE);
+                    SetDlgItemInt(hwnd, IDC_EDIT_Y, g_ballInfo.y, FALSE);
                     }
                 break;
                 case IDC_B_TL	:
                     {
-                        x -= 1;
-                        y += 1;
-                        SetDlgItemInt(hwnd, IDC_EDIT_X, x, FALSE);
-                        SetDlgItemInt(hwnd, IDC_EDIT_Y, y, FALSE);
+                        g_ballInfo.x -= 1;
+                        g_ballInfo.y += 1;
+                        SetDlgItemInt(hwnd, IDC_EDIT_X, g_ballInfo.x, FALSE);
+                        SetDlgItemInt(hwnd, IDC_EDIT_Y, g_ballInfo.y, FALSE);
                     }
                 break;
                 case IDC_B_T	:
                     {
-                        y += 1;
-                        SetDlgItemInt(hwnd, IDC_EDIT_X, x, FALSE);
-                        SetDlgItemInt(hwnd, IDC_EDIT_Y, y, FALSE);
+                        g_ballInfo.y += 1;
+                        SetDlgItemInt(hwnd, IDC_EDIT_X, g_ballInfo.x, FALSE);
+                        SetDlgItemInt(hwnd, IDC_EDIT_Y, g_ballInfo.y, FALSE);
                     }
                 break;
                 case IDC_B_TR	:
                     {
-                        x += 1;
-                        y += 1;
-                        SetDlgItemInt(hwnd, IDC_EDIT_X, x, FALSE);
-                        SetDlgItemInt(hwnd, IDC_EDIT_Y, y, FALSE);
+                        g_ballInfo.x += 1;
+                        g_ballInfo.y += 1;
+                        SetDlgItemInt(hwnd, IDC_EDIT_X, g_ballInfo.x, FALSE);
+                        SetDlgItemInt(hwnd, IDC_EDIT_Y, g_ballInfo.y, FALSE);
                     }
                 break;
                 case IDC_B_B	:
                     {
-                        y -= 1;
-                    SetDlgItemInt(hwnd, IDC_EDIT_X, x, FALSE);
-                    SetDlgItemInt(hwnd, IDC_EDIT_Y, y, FALSE);
+                        g_ballInfo.y -= 1;
+                    SetDlgItemInt(hwnd, IDC_EDIT_X, g_ballInfo.x, FALSE);
+                    SetDlgItemInt(hwnd, IDC_EDIT_Y, g_ballInfo.y, FALSE);
                     }
                 break;
                 case IDC_B_BL	:
                     {
-                        x -= 1;
-                        y -= 1;
-                    SetDlgItemInt(hwnd, IDC_EDIT_X, x, FALSE);
-                    SetDlgItemInt(hwnd, IDC_EDIT_Y, y, FALSE);
+                        g_ballInfo.x -= 1;
+                        g_ballInfo.y -= 1;
+                    SetDlgItemInt(hwnd, IDC_EDIT_X, g_ballInfo.x, FALSE);
+                    SetDlgItemInt(hwnd, IDC_EDIT_Y, g_ballInfo.y, FALSE);
                     }
                 break;
                 case IDC_B_BR	:
                     {
-                        x += 1;
-                        y -= 1;
-                        SetDlgItemInt(hwnd, IDC_EDIT_X, x, FALSE);
-                        SetDlgItemInt(hwnd, IDC_EDIT_Y, y, FALSE);
+                        g_ballInfo.x += 1;
+                        g_ballInfo.y -= 1;
+                        SetDlgItemInt(hwnd, IDC_EDIT_X, g_ballInfo.x, FALSE);
+                        SetDlgItemInt(hwnd, IDC_EDIT_Y, g_ballInfo.y, FALSE);
                     }
                 //--------------------------
                 break;
