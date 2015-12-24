@@ -6,15 +6,16 @@
 ////----
 //Glogal variables
 HWND g_hToolbar = NULL; // toolbar
-// int x = 0;
-// int y = 0;
+
 
 ////-----------------
 // animacijai kamuoliukas
 //
 
 const int ID_TIMER = 1;
-const int BALL_MOVE_DELTA = 2;
+const int BALL_MOVE_DELTA = 0; //2
+
+const int PUSH = 10 ;
 
 typedef struct _BALLINFO
 {
@@ -262,11 +263,11 @@ BOOL CALLBACK ToolDlgProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam)
 				//////////////////
                 case IDC_B_R 	:
                     {
-                        g_ballInfo.x += 1;
+                        g_ballInfo.x += PUSH;
                         SetDlgItemInt(hwnd, IDC_EDIT_X, g_ballInfo.x, FALSE);
                         SetDlgItemInt(hwnd, IDC_EDIT_Y, g_ballInfo.y, FALSE);
                         // siunciu pagal gluobalu, BET NIEKAS NEVEIKIA
-                        SendMessage (g_hToolbar ,  IDC_EVENTAS, (WPARAM)0,(LPARAM)0);
+                        SendMessage (g_hToolbar ,  WM_COMMAND, (WPARAM)IDC_EVENTAS,(LPARAM)0);
                     }
                 break;
                 // KODEL NEVEIKIA !??!?!!??!?!!
@@ -277,53 +278,53 @@ BOOL CALLBACK ToolDlgProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam)
                 break;
                 case IDC_B_L	:
                     {
-                    g_ballInfo.x -= 1;
+                    g_ballInfo.x -= PUSH;
                     SetDlgItemInt(hwnd, IDC_EDIT_X, g_ballInfo.x, FALSE);
                     SetDlgItemInt(hwnd, IDC_EDIT_Y, g_ballInfo.y, FALSE);
                     }
                 break;
                 case IDC_B_TL	:
                     {
-                        g_ballInfo.x -= 1;
-                        g_ballInfo.y += 1;
+                        g_ballInfo.x -= PUSH;
+                        g_ballInfo.y -= PUSH;
                         SetDlgItemInt(hwnd, IDC_EDIT_X, g_ballInfo.x, FALSE);
                         SetDlgItemInt(hwnd, IDC_EDIT_Y, g_ballInfo.y, FALSE);
                     }
                 break;
                 case IDC_B_T	:
                     {
-                        g_ballInfo.y += 1;
+                        g_ballInfo.y -= PUSH;
                         SetDlgItemInt(hwnd, IDC_EDIT_X, g_ballInfo.x, FALSE);
                         SetDlgItemInt(hwnd, IDC_EDIT_Y, g_ballInfo.y, FALSE);
                     }
                 break;
                 case IDC_B_TR	:
                     {
-                        g_ballInfo.x += 1;
-                        g_ballInfo.y += 1;
+                        g_ballInfo.x += PUSH;
+                        g_ballInfo.y -= PUSH;
                         SetDlgItemInt(hwnd, IDC_EDIT_X, g_ballInfo.x, FALSE);
                         SetDlgItemInt(hwnd, IDC_EDIT_Y, g_ballInfo.y, FALSE);
                     }
                 break;
                 case IDC_B_B	:
                     {
-                        g_ballInfo.y -= 1;
+                        g_ballInfo.y += PUSH;
                     SetDlgItemInt(hwnd, IDC_EDIT_X, g_ballInfo.x, FALSE);
                     SetDlgItemInt(hwnd, IDC_EDIT_Y, g_ballInfo.y, FALSE);
                     }
                 break;
                 case IDC_B_BL	:
                     {
-                        g_ballInfo.x -= 1;
-                        g_ballInfo.y -= 1;
+                        g_ballInfo.x -= PUSH;
+                        g_ballInfo.y += PUSH;
                     SetDlgItemInt(hwnd, IDC_EDIT_X, g_ballInfo.x, FALSE);
                     SetDlgItemInt(hwnd, IDC_EDIT_Y, g_ballInfo.y, FALSE);
                     }
                 break;
                 case IDC_B_BR	:
                     {
-                        g_ballInfo.x += 1;
-                        g_ballInfo.y -= 1;
+                        g_ballInfo.x += PUSH;
+                        g_ballInfo.y += PUSH;
                         SetDlgItemInt(hwnd, IDC_EDIT_X, g_ballInfo.x, FALSE);
                         SetDlgItemInt(hwnd, IDC_EDIT_Y, g_ballInfo.y, FALSE);
                     }
@@ -441,7 +442,7 @@ long __stdcall WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM l
 
 
 
-		case WM_PAINT:
+		case WM_PAINT: //pasileidzia tik pirma karta
 		{
 			RECT rcClient;
 			PAINTSTRUCT ps;

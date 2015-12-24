@@ -7,7 +7,7 @@ BEGIN
         BEGIN
             MENUITEM "&Open...",                    ID_FILE_OPEN
             MENUITEM "Save &As...",                 ID_FILE_SAVEAS
-            MENUITEM "&Test_mesager...",       IDM_FILE_OPEN //IDC_B_BR
+            MENUITEM "&Test_message...",       IDM_FILE_OPEN //IDC_B_BR
             MENUITEM "&Exit\tCtrl+q",       IDM_FILE_EXIT
 
         END
@@ -68,9 +68,9 @@ BEGIN
     PUSHBUTTON      "B",IDC_B_B,76,101,50,14
     PUSHBUTTON      "B/R",IDC_B_BR,125,100,50,14
     LTEXT           "X:",IDC_STATIC_X,27,45,19,9
-    EDITTEXT        IDC_EDIT_X,45,43,45,16,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_X,45,43,45,16,ES_AUTOHSCROLL | WS_DISABLED
     LTEXT           "Y:",IDC_STATIC_Y,113,45,19,9
-    EDITTEXT        IDC_EDIT_Y,127,43,45,16,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_Y,127,43,45,16,ES_AUTOHSCROLL | WS_DISABLED
 
 
 END
